@@ -1,6 +1,6 @@
 // src/utils/solver.js
 
-export const solveSudoku = (grid) => {
+export const animateSolveSudoku = (grid, setGrid, speed = 100) => {
     const findEmpty = (grid) => {
       for (let row = 0; row < 9; row++)
         for (let col = 0; col < 9; col++)
@@ -19,7 +19,7 @@ export const solveSudoku = (grid) => {
         if (grid[i][col] === num) return false;
       }
   
-      // Check box
+      // Check 3x3 box
       const boxRow = Math.floor(row / 3) * 3;
       const boxCol = Math.floor(col / 3) * 3;
       for (let r = boxRow; r < boxRow + 3; r++) {
@@ -31,24 +31,28 @@ export const solveSudoku = (grid) => {
       return true;
     };
   
-    const backtrack = (grid) => {
+    const solveWithAnimation = async (grid) => {
       const current = findEmpty(grid);
-      if (!current) return grid; // Solved
+      if (!current) return true; // Solved
   
       const [row, col] = current;
       for (let num = 1; num <= 9; num++) {
         if (isValid(grid, num, current)) {
           grid[row][col] = num;
-          const result = backtrack(grid);
-          if (result) return result;
+          setGrid([...grid]); // Update the state to trigger re-render
+          await new Promise((resolve) => setTimeout(resolve, speed)); // Add delay for animation
+  
+          if (await solveWithAnimation(grid)) return true;
           grid[row][col] = null;
+          setGrid([...grid]); // Reset the state if backtracking
+          await new Promise((resolve) => setTimeout(resolve, speed)); // Add delay for backtracking
         }
       }
-      return null; // Trigger backtracking
+  
+      return false;
     };
   
-    // Deep copy the grid to avoid mutating the original
-    const gridCopy = grid.map(row => row.slice());
-    return backtrack(gridCopy);
+    // Start solving the grid with animation
+    solveWithAnimation(grid);
   };
   

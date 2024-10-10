@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import SudokuGrid from './components/SudokuGrid';
 import Controlls from './components/Controlls';
-import { solveSudoku } from './utils/solver';
-import './App.css'; // For overall styling
+import { animateSolveSudoku } from './utils/solver';
+import { puzzles } from './utils/puzzles'; // Import predefined puzzles
+import './App.css';
 
 const App = () => {
-  // Initialize a 9x9 grid with nulls
   const [grid, setGrid] = useState(
     Array.from({ length: 9 }, () => Array(9).fill(null))
   );
@@ -18,25 +18,27 @@ const App = () => {
   };
 
   const handleSolve = () => {
-    const solution = solveSudoku(grid);
-    if (solution) {
-      setGrid(solution);
-    } else {
-      alert('No solution found!');
-    }
+    animateSolveSudoku(grid, setGrid, 50); // 100ms delay for animation
   };
 
   const handleClear = () => {
     setGrid(Array.from({ length: 9 }, () => Array(9).fill(null)));
   };
 
+  const handleDifficultyChange = (difficulty) => {
+    const selectedPuzzle = puzzles[difficulty];
+    setGrid(selectedPuzzle);
+  };
+
   return (
     <div className="app">
       <h1>Sudoku Solver</h1>
-      <div style={{justifyContent: 'center'}}>
       <SudokuGrid grid={grid} onChange={handleChange} />
-      </div>
-      <Controlls onSolve={handleSolve} onClear={handleClear} />
+      <Controlls
+        onSolve={handleSolve}
+        onClear={handleClear}
+        onDifficultyChange={handleDifficultyChange}
+      />
     </div>
   );
 };
